@@ -1,3 +1,4 @@
+import hashlib
 import json
 from collections.abc import Sequence
 
@@ -15,7 +16,8 @@ class RedisChatStore:
 
     @staticmethod
     def _cache_key(session_id: str, message: str) -> str:
-        return f"cache:{session_id}:{message.strip().lower()}"
+        msg_hash = hashlib.sha256(message.strip().lower().encode()).hexdigest()
+        return f"cache:{session_id}:{msg_hash}"
 
     async def get_cached_response(self, session_id: str, message: str) -> str | None:
         data = await self.redis_client.get(self._cache_key(session_id, message))
