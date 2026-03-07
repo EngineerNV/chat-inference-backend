@@ -26,27 +26,29 @@ class TinyLlamaService:
     def generate_response(self, message: str, history: list[dict[str, str]] | None = None) -> str:
         history = history or []
 
-        conversation = ""
-        for item in history:
-            role = item.get("role", "user")
-            content = item.get("content", "")
-            conversation += f"<{role}>: {content}\n"
+        messages = [*history, {"role": "user", "content": message}]
 
-        conversation += f"<user>: {message}\n<assistant>:"
-        inputs = self.tokenizer(conversation, return_tensors="pt")
+        prompt = self.tokenizer.apply_chat_template(
+            messages,
+            tokenize=False,
+            add_generation_prompt=True,
+        )
+        inputs = self.tokenizer(prompt, return_tensors="pt")
 
         if torch.cuda.is_available():
             inputs = {k: v.to("cuda") for k, v in inputs.items()}
 
-        output = self.model.generate(
-            **inputs,
-            max_new_tokens=self.max_new_tokens,
-            do_sample=self.temperature > 0,
-            temperature=self.temperature,
-            pad_token_id=self.tokenizer.eos_token_id,
-        )
+        do_sample = self.temperature > 0
+        generate_kwargs: dict[str, int | bool | float] = {
+            "max_new_tokens": self.max_new_tokens,
+            "do_sample": do_sample,
+            "pad_token_id": self.tokenizer.eos_token_id,
+        }
+        if do_sample:
+            generate_kwargs["temperature"] = self.temperature
 
-        full_text = self.tokenizer.decode(output[0], skip_special_tokens=True)
-        if "<assistant>:" in full_text:
-            return full_text.split("<assistant>:")[-1].strip()
-        return full_text.strip()
+        input_length = inputs["input_ids"].shape[1]
+        output = self.model.generate(**inputs, **generate_kwargs)
+
+        new_tokens = output[0][input_length:]
+        return self.tokenizer.decode(new_tokens, skip_special_tokens=True).strip()
