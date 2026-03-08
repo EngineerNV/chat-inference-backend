@@ -56,8 +56,7 @@ def test_generate_response_with_history(mock_model_cls, mock_tokenizer_cls) -> N
     mock_tokenizer.return_value = {"input_ids": MagicMock(shape=(1, 10))}
     mock_tokenizer.eos_token_id = 2
     mock_model.generate.return_value = MagicMock(shape=(1, 20))
-    mock_model.generate.return_value.__getitem__.side_effect = lambda x: MagicMock(shape=(1, 10))
-    mock_tokenizer.decode.return_value = "response text"
+    mock_model.generate.return_value.__getitem__.side_effect = lambda _: MagicMock(shape=(1, 10))
 
     service = TinyLlamaService(model_name="test")
     history = [{"role": "user", "content": "previous"}, {"role": "assistant", "content": "reply"}]
@@ -84,8 +83,7 @@ def test_generate_response_empty_history(mock_model_cls, mock_tokenizer_cls) -> 
     mock_tokenizer.return_value = {"input_ids": MagicMock(shape=(1, 10))}
     mock_tokenizer.eos_token_id = 2
     mock_model.generate.return_value = MagicMock(shape=(1, 20))
-    mock_model.generate.return_value.__getitem__.side_effect = lambda x: MagicMock(shape=(1, 10))
-    mock_tokenizer.decode.return_value = "response"
+    mock_model.generate.return_value.__getitem__.side_effect = lambda _: MagicMock(shape=(1, 10))
 
     service = TinyLlamaService(model_name="test")
 

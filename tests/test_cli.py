@@ -39,7 +39,7 @@ def test_run_chat_loads_existing_history(tmp_path: Path, monkeypatch: pytest.Mon
     prompts = iter(["/save", "/exit"])
     output: list[str] = []
 
-    monkeypatch.setattr(cli, "send_message", lambda *args, **kwargs: (_ for _ in ()).throw(RuntimeError("unused")))
+    monkeypatch.setattr(cli, "send_message", lambda *_args, **_kwargs: (_ for _ in ()).throw(RuntimeError("unused")))
 
     cli.run_chat(
         api_url="http://localhost:8000/chat",
