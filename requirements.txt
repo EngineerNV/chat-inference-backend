@@ -2,5 +2,6 @@ fastapi==0.115.6
 uvicorn[standard]==0.34.0
 redis[hiredis]==5.2.1
 transformers==4.48.3
+accelerate>=0.26.0
 torch==2.5.1
 pydantic-settings==2.7.1

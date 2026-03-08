@@ -9,6 +9,7 @@ This branch replaces the previous Dialo-style inference direction with a TinyLla
 - FastAPI API server (`/health`, `/chat`)
 - Redis-backed session history + response cache
 - TinyLlama model loading and generation via Hugging Face Transformers
+- `accelerate` runtime support for memory-efficient model loading (`low_cpu_mem_usage=True`)
 - Dockerized local stack (`api` + `redis`)
 
 ## Quick start
@@ -26,6 +27,22 @@ uvicorn app.main:app --host 127.0.0.1 --port 8000
 
 ```bash
 docker compose up --build
+```
+
+## Common startup issues
+
+If startup fails with:
+
+```text
+ImportError: Using `low_cpu_mem_usage=True` or a `device_map` requires Accelerate: `pip install 'accelerate>=0.26.0'`
+```
+
+Install dependencies again (or install accelerate directly):
+
+```bash
+pip install -r requirements.txt
+# or
+pip install 'accelerate>=0.26.0'
 ```
 
 ## API usage
