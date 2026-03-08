@@ -29,6 +29,16 @@ def mgr(sessions_dir: Path) -> SessionManager:
 # new_session
 # ---------------------------------------------------------------------------
 
+class TestCreateSessionRecord:
+    def test_creates_file(self, mgr: SessionManager, sessions_dir: Path) -> None:
+        mgr.create_session_record("remote-sid")
+        assert (sessions_dir / "remote-sid.json").exists()
+
+    def test_creates_empty_messages(self, mgr: SessionManager) -> None:
+        mgr.create_session_record("remote-sid")
+        assert mgr.get_history("remote-sid") == []
+
+
 class TestNewSession:
     def test_creates_file(self, mgr: SessionManager, sessions_dir: Path) -> None:
         sid = mgr.new_session()

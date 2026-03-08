@@ -38,6 +38,14 @@ class SessionManager:
     # Session lifecycle
     # ------------------------------------------------------------------
 
+    def create_session_record(self, session_id: str) -> None:
+        """Create a local session file for a known remote *session_id*.
+
+        Use this when you want to track a session that already exists in the
+        backend (e.g. Redis) but has no local JSON record yet.
+        """
+        self._write(session_id, [])
+
     def new_session(self) -> str:
         """Create a fresh session ID and persist an empty session file."""
         session_id = str(uuid.uuid4())

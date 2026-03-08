@@ -128,7 +128,7 @@ def run_chat(
             print(_dim(f"Resuming session {session_id}"))
         except FileNotFoundError:
             # Session exists in Redis/backend but not locally – create local record
-            session_mgr._write(session_id, [])  # noqa: SLF001
+            session_mgr.create_session_record(session_id)
             print(_dim(f"Starting local record for session {session_id}"))
     else:
         session_id = session_mgr.new_session()
