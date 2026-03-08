@@ -1,6 +1,6 @@
 # chat-inference-backend
 
-TinyLlama-powered chat inference backend with FastAPI + Redis.
+TinyLlama-powered chat inference backend with FastAPI + Redis, plus a CLI chat interface.
 
 ## What changed
 
@@ -11,6 +11,7 @@ This branch replaces the previous Dialo-style inference direction with a TinyLla
 - TinyLlama model loading and generation via Hugging Face Transformers
 - `accelerate` runtime support for memory-efficient model loading (`low_cpu_mem_usage=True`)
 - Dockerized local stack (`api` + `redis`)
+- **CLI chat interface** with session management and JSON persistence (`cli/`)
 
 ## Quick start
 
@@ -59,6 +60,63 @@ curl http://localhost:8000/health
 curl -X POST http://localhost:8000/chat \
   -H "Content-Type: application/json" \
   -d '{"session_id": "demo", "message": "Hello TinyLlama"}'
+```
+
+## CLI usage
+
+> The backend must be running (`docker compose up` or `uvicorn`) before using the CLI.
+
+### Start a new chat session
+
+```bash
+python -m cli.chat
+```
+
+### Resume an existing session
+
+```bash
+python -m cli.chat --session <session-id>
+```
+
+### Use a different backend URL
+
+```bash
+python -m cli.chat --url http://localhost:8000
+```
+
+### List all saved sessions
+
+```bash
+python -m cli.chat --list
+```
+
+### Export a session to JSON
+
+```bash
+python -m cli.chat --export <session-id>
+```
+
+### In-session slash commands
+
+| Command       | Description                                 |
+|---------------|---------------------------------------------|
+| `/help`       | Show available commands                     |
+| `/session`    | Print the current session ID                |
+| `/history`    | Print the full conversation history         |
+| `/save`       | Sessions are auto-saved; this confirms it   |
+| `/export`     | Print the session JSON to stdout            |
+| `/new`        | Start a new session                         |
+| `/quit`       | Exit the chat (Ctrl-C also works)           |
+
+### Session storage
+
+Sessions are stored as JSON files in `~/.chat-inference/sessions/` by default.
+Override with `--sessions-dir <path>`.
+
+### Running the tests
+
+```bash
+python -m pytest tests/ -v
 ```
 
 ## Environment variables
