@@ -7,8 +7,10 @@ TinyLlama-powered chat inference backend with FastAPI + Redis.
 This branch replaces the previous Dialo-style inference direction with a TinyLlama-first service architecture:
 
 - FastAPI API server (`/health`, `/chat`)
+- Terminal CLI chat client (`python -m app.cli`)
 - Redis-backed session history + response cache
 - TinyLlama model loading and generation via Hugging Face Transformers
+- `accelerate` runtime support for memory-efficient model loading (`low_cpu_mem_usage=True`)
 - Dockerized local stack (`api` + `redis`)
 
 ## Quick start
@@ -22,10 +24,40 @@ pip install -r requirements.txt
 uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
+### Terminal CLI chat
+
+In another terminal (with the same venv active), run:
+
+```bash
+python -m app.cli --api-url http://127.0.0.1:8000/chat --session-id demo
+```
+
+CLI behavior:
+- prompts for `session_id` when omitted
+- sends each message to `/chat`
+- stores transcript JSON under `./sessions/<session_id>.json`
+- supports `/history`, `/save`, and `/exit`
+
 ### Docker Compose
 
 ```bash
 docker compose up --build
+```
+
+## Common startup issues
+
+If startup fails with:
+
+```text
+ImportError: Using `low_cpu_mem_usage=True` or a `device_map` requires Accelerate: `pip install 'accelerate>=0.26.0'`
+```
+
+Install dependencies again (or install accelerate directly):
+
+```bash
+pip install -r requirements.txt
+# or
+pip install 'accelerate>=0.26.0'
 ```
 
 ## API usage
@@ -42,6 +74,12 @@ curl http://localhost:8000/health
 curl -X POST http://localhost:8000/chat \
   -H "Content-Type: application/json" \
   -d '{"session_id": "demo", "message": "Hello TinyLlama"}'
+```
+
+## Tests
+
+```bash
+pytest -q
 ```
 
 ## Environment variables
